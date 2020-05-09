@@ -1,0 +1,1724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>6_cornernet_lite.lib.train_detector API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>6_cornernet_lite.lib.train_detector</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import os
+import json
+import torch
+import numpy as np
+import queue
+import pprint
+import random 
+import argparse
+import importlib
+import threading
+import traceback
+import torch.distributed as dist
+import torch.multiprocessing as mp
+
+from tqdm import tqdm
+from torch.multiprocessing import Process, Queue, Pool
+
+from core.dbs import datasets
+from core.utils import stdout_to_tqdm
+from core.config import SystemConfig
+from core.sample import data_sampling_func
+from core.nnet.py_factory import NetworkFactory
+
+
+def prefetch_data(system_config, db, queue, sample_data, data_aug):
+    ind = 0
+    print(&#34;start prefetching data...&#34;)
+    np.random.seed(os.getpid())
+    while True:
+        try:
+            data, ind = sample_data(system_config, db, ind, data_aug=data_aug)
+            queue.put(data)
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+            
+def _pin_memory(ts):
+    if type(ts) is list:
+        return [t.pin_memory() for t in ts]
+    return ts.pin_memory()
+
+
+def pin_memory(data_queue, pinned_data_queue, sema):
+    while True:
+        data = data_queue.get()
+
+        data[&#34;xs&#34;] = [_pin_memory(x) for x in data[&#34;xs&#34;]]
+        data[&#34;ys&#34;] = [_pin_memory(y) for y in data[&#34;ys&#34;]]
+
+        pinned_data_queue.put(data)
+
+        if sema.acquire(blocking=False):
+            return
+
+        
+def init_parallel_jobs(system_config, dbs, queue, fn, data_aug):
+    tasks = [Process(target=prefetch_data, args=(system_config, db, queue, fn, data_aug)) for db in dbs]
+    for task in tasks:
+        task.daemon = True
+        task.start()
+    return tasks
+
+def terminate_tasks(tasks):
+    for task in tasks:
+        task.terminate()
+
+
+class Detector():
+    &#39;&#39;&#39;
+    Class to train a detector
+
+    Args:
+        verbose (int): Set verbosity levels
+                        0 - Print Nothing
+                        1 - Print desired details
+    &#39;&#39;&#39;
+    def __init__(self, verbose=1):
+        self.system_dict = {};
+        self.system_dict[&#34;verbose&#34;] = verbose;
+        self.system_dict[&#34;local&#34;] = {};
+        self.system_dict[&#34;dataset&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;] = False;
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;] = 4;
+
+
+        self.system_dict[&#34;model&#34;] = {};
+        self.system_dict[&#34;model&#34;][&#34;params&#34;] = {};
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] = &#34;CornerNet_Saccade&#34;;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;initialize&#34;] = False;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;] = False;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;] = 0;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;rank&#34;] = 0;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;dist_url&#34;] = None;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;dist_backend&#34;] = &#34;nccl&#34;;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;use_gpu&#34;] = True;
+
+        self.system_dict[&#34;training&#34;] = {};
+        self.system_dict[&#34;training&#34;][&#34;params&#34;] = {};
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;start_iter&#34;] = 0;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;gpu&#34;] = None;
+        
+
+
+    def Train_Dataset(self, root_dir, coco_dir, img_dir, set_dir, batch_size=4, use_gpu=True, num_workers=4):
+        &#39;&#39;&#39;
+        User function: Set training dataset parameters
+
+        Dataset Directory Structure
+
+                   root_dir
+                      |
+                      |------coco_dir 
+                      |         |
+                      |         |----img_dir
+                      |                |
+                      |                |------&lt;set_dir_train&gt; (set_dir) (Train)
+                      |                         |
+                      |                         |---------img1.jpg
+                      |                         |---------img2.jpg
+                      |                         |---------..........(and so on)  
+                      |
+                      |
+                      |         |---annotations 
+                      |         |----|
+                      |              |--------------------instances_Train.json  (instances_&lt;set_dir_train&gt;.json)
+                      |              |--------------------classes.txt
+                      
+                      
+             - instances_Train.json -&gt; In proper COCO format
+             - classes.txt          -&gt; A list of classes in alphabetical order
+             
+
+            For TrainSet
+             - root_dir = &#34;../sample_dataset&#34;;
+             - coco_dir = &#34;kangaroo&#34;;
+             - img_dir = &#34;images&#34;;
+             - set_dir = &#34;Train&#34;;
+            
+             
+            Note: Annotation file name too coincides against the set_dir
+
+        Args:
+            root_dir (str): Path to root directory containing coco_dir
+            coco_dir (str): Name of coco_dir containing image folder and annotation folder
+            img_dir (str): Name of folder containing all training and validation folders
+            set_dir (str): Name of folder containing all training images
+            batch_size (int): Mini batch sampling size for training epochs
+            use_gpu (bool): If True use GPU else run on CPU
+            num_workers (int): Number of parallel processors for data loader 
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;] = root_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;] = coco_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;img_dir&#34;] = img_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;set_dir&#34;] = set_dir;
+
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;] = batch_size;
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;] = num_workers;
+
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;use_gpu&#34;] = use_gpu;
+
+
+
+    def Val_Dataset(self, root_dir, coco_dir, img_dir, set_dir):
+        &#39;&#39;&#39;
+        User function: Set training dataset parameters
+
+        Dataset Directory Structure
+
+                   root_dir
+                      |
+                      |------coco_dir 
+                      |         |
+                      |         |----img_dir
+                      |                |
+                      |                |------&lt;set_dir_val&gt; (set_dir) (Validation)
+                      |                         |
+                      |                         |---------img1.jpg
+                      |                         |---------img2.jpg
+                      |                         |---------..........(and so on)  
+                      |
+                      |
+                      |         |---annotations 
+                      |         |----|
+                      |              |--------------------instances_Val.json  (instances_&lt;set_dir_val&gt;.json)
+                      |              |--------------------classes.txt
+                      
+                      
+             - instances_Train.json -&gt; In proper COCO format
+             - classes.txt          -&gt; A list of classes in alphabetical order
+
+             
+            For ValSet
+             - root_dir = &#34;..sample_dataset&#34;;
+             - coco_dir = &#34;kangaroo&#34;;
+             - img_dir = &#34;images&#34;;
+             - set_dir = &#34;Val&#34;;
+             
+             Note: Annotation file name too coincides against the set_dir
+
+        Args:
+            root_dir (str): Path to root directory containing coco_dir
+            coco_dir (str): Name of coco_dir containing image folder and annotation folder
+            img_dir (str): Name of folder containing all training and validation folders
+            set_dir (str): Name of folder containing all validation images
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;] = True;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;root_dir&#34;] = root_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;coco_dir&#34;] = coco_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;img_dir&#34;] = img_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;set_dir&#34;] = set_dir;
+
+
+
+    def Model(self, model_name=&#34;CornerNet_Saccade&#34;, use_distributed=False):
+        &#39;&#39;&#39;
+        User function: Set Model parameters
+
+            Available Models
+                CornerNet_Saccade
+                CornerNet_Squeeze
+
+        Args:
+            model_name (str): Select appropriate model
+            use_distributed (bool): If true, use distributed training
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] = model_name;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;] = use_distributed;
+
+        if(self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]):
+            print(&#34;Distributed training not enabled yet&#34;);
+
+
+    def Hyper_Params(self, lr=0.00025, total_iterations=1000, val_interval=500):
+        &#39;&#39;&#39;
+        User function: Set hyper parameters
+
+        Args:
+            lr (float): Initial learning rate for training
+            total_iterations (float): Total mini batch iterations for training
+            val_interval (int): Post specified number of training epochs, a validation epoch will be carried out
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;lr&#34;] = lr;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;] = total_iterations;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;val_interval&#34;] = val_interval;
+
+
+
+    def Setup(self):
+        &#39;&#39;&#39;
+        User function: Setup dataset, model and hyper-params 
+
+        Args:
+            None
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        distributed = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]
+        world_size  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;]
+
+        ngpus_per_node  = torch.cuda.device_count()
+
+        current_dir = os.path.dirname(os.path.realpath(__file__));
+
+        cfg_file = os.path.join(current_dir, &#34;configs&#34;, self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] + &#34;.json&#34;)
+        with open(cfg_file, &#34;r&#34;) as f:
+            self.system_dict[&#34;local&#34;][&#34;config&#34;] = json.load(f)
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;root_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;coco_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;img_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;img_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;set_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;set_dir&#34;];
+
+        f = open(self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;] + &#34;/&#34; + self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;] + &#34;/annotations/classes.txt&#34;);
+        lines = f.readlines();
+        f.close();
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;categories&#34;] = len(lines);
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;batch_size&#34;] = self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;chunk_sizes&#34;] = [self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;]];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;max_iter&#34;] = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;];
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;snapshot_name&#34;] = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;]
+        self.system_dict[&#34;local&#34;][&#34;system_config&#34;] = SystemConfig().update_config(self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;])
+
+        self.system_dict[&#34;local&#34;][&#34;training_dbs&#34;] = [datasets[self.system_dict[&#34;local&#34;][&#34;system_config&#34;].dataset](self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;], 
+                                                            sys_config=self.system_dict[&#34;local&#34;][&#34;system_config&#34;]) for _ in range(self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;])]
+
+        if(self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]):
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;root_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;root_dir&#34;];
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;coco_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;coco_dir&#34;];
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;img_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;img_dir&#34;];
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;set_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;set_dir&#34;];
+
+            self.system_dict[&#34;local&#34;][&#34;validation_db&#34;] = datasets[self.system_dict[&#34;local&#34;][&#34;system_config&#34;].dataset](self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;], 
+                                                                sys_config=self.system_dict[&#34;local&#34;][&#34;system_config&#34;])
+
+
+        if(not os.path.isdir(&#34;cache/&#34;)):
+            os.mkdir(&#34;cache&#34;);
+        if(not os.path.isdir(&#34;cache/nnet&#34;)):
+            os.mkdir(&#34;cache/nnet/&#34;);
+        if(not os.path.isdir(&#34;cache/nnet/&#34; + self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;])):
+            os.mkdir(&#34;cache/nnet/&#34; + self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;]);
+
+        model_file  = &#34;core.models.{}&#34;.format(self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;])
+        print(&#34;Loading Model - {}&#34;.format(model_file))
+        model_file  = importlib.import_module(model_file)
+        self.system_dict[&#34;local&#34;][&#34;model&#34;] = model_file.model(self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;categories&#34;])
+        print(&#34;Model Loaded&#34;);
+
+
+    def Train(self, display_interval=100):
+        &#39;&#39;&#39;
+        User function: Start training
+
+        Args:
+            display_interval (int): Post every specified iteration the training losses and accuracies will be printed
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+                # reading arguments from command
+        start_iter  = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;start_iter&#34;]
+        distributed = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]
+        world_size  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;]
+        initialize  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;initialize&#34;]
+        gpu         = None
+        rank        = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;rank&#34;]
+
+        # reading arguments from json file
+        batch_size       = self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;]
+        learning_rate    = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;lr&#34;]
+        max_iteration    = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]
+        pretrained_model = None;
+
+        stepsize         = int(self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]*0.8)
+        snapshot         = int(self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]*0.5)
+        val_iter         = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;val_interval&#34;]
+        display          = display_interval
+        decay_rate       = self.system_dict[&#34;local&#34;][&#34;system_config&#34;].decay_rate
+
+        print(&#34;start_iter       = {}&#34;.format(start_iter));
+        print(&#34;distributed      = {}&#34;.format(distributed));
+        print(&#34;world_size       = {}&#34;.format(world_size));
+        print(&#34;initialize       = {}&#34;.format(initialize));
+        print(&#34;batch_size       = {}&#34;.format(batch_size));
+        print(&#34;learning_rate    = {}&#34;.format(learning_rate));
+        print(&#34;max_iteration    = {}&#34;.format(max_iteration));
+        print(&#34;stepsize         = {}&#34;.format(stepsize));
+        print(&#34;snapshot         = {}&#34;.format(snapshot));
+        print(&#34;val_iter         = {}&#34;.format(val_iter));
+        print(&#34;display          = {}&#34;.format(display));
+        print(&#34;decay_rate       = {}&#34;.format(decay_rate));
+
+
+
+        print(&#34;Process {}: building model...&#34;.format(rank))
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;] = NetworkFactory(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                self.system_dict[&#34;local&#34;][&#34;model&#34;], distributed=distributed, gpu=gpu)
+
+
+        # queues storing data for training
+        training_queue   = Queue(self.system_dict[&#34;local&#34;][&#34;system_config&#34;].prefetch_size)
+        validation_queue = Queue(5)
+
+        # queues storing pinned data for training
+        pinned_training_queue   = queue.Queue(self.system_dict[&#34;local&#34;][&#34;system_config&#34;].prefetch_size)
+        pinned_validation_queue = queue.Queue(5)
+
+
+        # allocating resources for parallel reading
+        training_tasks = init_parallel_jobs(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                            self.system_dict[&#34;local&#34;][&#34;training_dbs&#34;], 
+                                            training_queue, data_sampling_func, True)
+
+
+        
+        if self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]:
+            validation_tasks = init_parallel_jobs(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                                    [self.system_dict[&#34;local&#34;][&#34;validation_db&#34;]], 
+                                                    validation_queue, data_sampling_func, False)
+
+
+        training_pin_semaphore   = threading.Semaphore()
+        validation_pin_semaphore = threading.Semaphore()
+        training_pin_semaphore.acquire()
+        validation_pin_semaphore.acquire()
+
+        training_pin_args   = (training_queue, pinned_training_queue, training_pin_semaphore)
+        training_pin_thread = threading.Thread(target=pin_memory, args=training_pin_args)
+        training_pin_thread.daemon = True
+        training_pin_thread.start()
+
+        validation_pin_args   = (validation_queue, pinned_validation_queue, validation_pin_semaphore)
+        validation_pin_thread = threading.Thread(target=pin_memory, args=validation_pin_args)
+        validation_pin_thread.daemon = True
+        validation_pin_thread.start()
+        
+        if pretrained_model is not None:
+            if not os.path.exists(pretrained_model):
+                raise ValueError(&#34;pretrained model does not exist&#34;)
+            print(&#34;Process {}: loading from pretrained model&#34;.format(rank))
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].load_pretrained_params(pretrained_model)
+
+        if start_iter:
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].load_params(start_iter)
+            learning_rate /= (decay_rate ** (start_iter // stepsize))
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+            print(&#34;Process {}: training starts from iteration {} with learning_rate {}&#34;.format(rank, start_iter + 1, learning_rate))
+        else:
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+
+        if rank == 0:
+            print(&#34;training start...&#34;)
+
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].cuda()
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train_mode()   
+
+        if(self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]):
+            old_val_loss = 100000.0;
+            with stdout_to_tqdm() as save_stdout:
+                for iteration in tqdm(range(start_iter + 1, max_iteration + 1), file=save_stdout, ncols=80):
+                    training = pinned_training_queue.get(block=True)
+                    training_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train(**training)
+
+                    if display and iteration % display == 0:
+                        print(&#34;Process {}: training loss at iteration {}: {}&#34;.format(rank, iteration, training_loss.item()))
+                    del training_loss
+
+                    if val_iter and self.system_dict[&#34;local&#34;][&#34;validation_db&#34;].db_inds.size and iteration % val_iter == 0:
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].eval_mode()
+                        validation = pinned_validation_queue.get(block=True)
+                        validation_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].validate(**validation)
+                        print(&#34;Process {}: validation loss at iteration {}: {}&#34;.format(rank, iteration, validation_loss.item()))
+                        if(validation_loss &lt; old_val_loss):
+                            print(&#34;Loss Reduced from {} to {}&#34;.format(old_val_loss, validation_loss))
+                            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;best&#34;);
+                            old_val_loss = validation_loss;
+                        else:
+                            print(&#34;validation loss did not go below {}, current loss - {}&#34;.format(old_val_loss, validation_loss))
+
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train_mode()
+                        
+
+                    if iteration % stepsize == 0:
+                        learning_rate /= decay_rate
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;final&#34;);
+
+            # sending signal to kill the thread
+            training_pin_semaphore.release()
+            validation_pin_semaphore.release()
+
+            # terminating data fetching processes
+            terminate_tasks(training_tasks)
+            terminate_tasks(validation_tasks)
+
+
+        else:
+            with stdout_to_tqdm() as save_stdout:
+                for iteration in tqdm(range(start_iter + 1, max_iteration + 1), file=save_stdout, ncols=80):
+                    training = pinned_training_queue.get(block=True)
+                    training_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train(**training)
+
+                    if display and iteration % display == 0:
+                        print(&#34;Process {}: training loss at iteration {}: {}&#34;.format(rank, iteration, training_loss.item()))
+                    del training_loss
+
+
+                    if(iteration % val_iter == 0):
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;intermediate&#34;);                     
+
+                    if iteration % stepsize == 0:
+                        learning_rate /= decay_rate
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;final&#34;);
+
+            # sending signal to kill the thread
+            training_pin_semaphore.release()
+
+            # terminating data fetching processes
+            terminate_tasks(training_tasks)
+    </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="6_cornernet_lite.lib.train_detector.init_parallel_jobs"><code class="name flex">
+<span>def <span class="ident">init_parallel_jobs</span></span>(<span>system_config, dbs, queue, fn, data_aug)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_parallel_jobs(system_config, dbs, queue, fn, data_aug):
+    tasks = [Process(target=prefetch_data, args=(system_config, db, queue, fn, data_aug)) for db in dbs]
+    for task in tasks:
+        task.daemon = True
+        task.start()
+    return tasks</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.pin_memory"><code class="name flex">
+<span>def <span class="ident">pin_memory</span></span>(<span>data_queue, pinned_data_queue, sema)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pin_memory(data_queue, pinned_data_queue, sema):
+    while True:
+        data = data_queue.get()
+
+        data[&#34;xs&#34;] = [_pin_memory(x) for x in data[&#34;xs&#34;]]
+        data[&#34;ys&#34;] = [_pin_memory(y) for y in data[&#34;ys&#34;]]
+
+        pinned_data_queue.put(data)
+
+        if sema.acquire(blocking=False):
+            return</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.prefetch_data"><code class="name flex">
+<span>def <span class="ident">prefetch_data</span></span>(<span>system_config, db, queue, sample_data, data_aug)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prefetch_data(system_config, db, queue, sample_data, data_aug):
+    ind = 0
+    print(&#34;start prefetching data...&#34;)
+    np.random.seed(os.getpid())
+    while True:
+        try:
+            data, ind = sample_data(system_config, db, ind, data_aug=data_aug)
+            queue.put(data)
+        except Exception as e:
+            traceback.print_exc()
+            raise e</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.terminate_tasks"><code class="name flex">
+<span>def <span class="ident">terminate_tasks</span></span>(<span>tasks)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def terminate_tasks(tasks):
+    for task in tasks:
+        task.terminate()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="6_cornernet_lite.lib.train_detector.Detector"><code class="flex name class">
+<span>class <span class="ident">Detector</span></span>
+<span>(</span><span>verbose=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class to train a detector</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>int</code></dt>
+<dd>Set verbosity levels
+0 - Print Nothing
+1 - Print desired details</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Detector():
+    &#39;&#39;&#39;
+    Class to train a detector
+
+    Args:
+        verbose (int): Set verbosity levels
+                        0 - Print Nothing
+                        1 - Print desired details
+    &#39;&#39;&#39;
+    def __init__(self, verbose=1):
+        self.system_dict = {};
+        self.system_dict[&#34;verbose&#34;] = verbose;
+        self.system_dict[&#34;local&#34;] = {};
+        self.system_dict[&#34;dataset&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;] = False;
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;] = {};
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;] = 4;
+
+
+        self.system_dict[&#34;model&#34;] = {};
+        self.system_dict[&#34;model&#34;][&#34;params&#34;] = {};
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] = &#34;CornerNet_Saccade&#34;;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;initialize&#34;] = False;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;] = False;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;] = 0;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;rank&#34;] = 0;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;dist_url&#34;] = None;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;dist_backend&#34;] = &#34;nccl&#34;;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;use_gpu&#34;] = True;
+
+        self.system_dict[&#34;training&#34;] = {};
+        self.system_dict[&#34;training&#34;][&#34;params&#34;] = {};
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;start_iter&#34;] = 0;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;gpu&#34;] = None;
+        
+
+
+    def Train_Dataset(self, root_dir, coco_dir, img_dir, set_dir, batch_size=4, use_gpu=True, num_workers=4):
+        &#39;&#39;&#39;
+        User function: Set training dataset parameters
+
+        Dataset Directory Structure
+
+                   root_dir
+                      |
+                      |------coco_dir 
+                      |         |
+                      |         |----img_dir
+                      |                |
+                      |                |------&lt;set_dir_train&gt; (set_dir) (Train)
+                      |                         |
+                      |                         |---------img1.jpg
+                      |                         |---------img2.jpg
+                      |                         |---------..........(and so on)  
+                      |
+                      |
+                      |         |---annotations 
+                      |         |----|
+                      |              |--------------------instances_Train.json  (instances_&lt;set_dir_train&gt;.json)
+                      |              |--------------------classes.txt
+                      
+                      
+             - instances_Train.json -&gt; In proper COCO format
+             - classes.txt          -&gt; A list of classes in alphabetical order
+             
+
+            For TrainSet
+             - root_dir = &#34;../sample_dataset&#34;;
+             - coco_dir = &#34;kangaroo&#34;;
+             - img_dir = &#34;images&#34;;
+             - set_dir = &#34;Train&#34;;
+            
+             
+            Note: Annotation file name too coincides against the set_dir
+
+        Args:
+            root_dir (str): Path to root directory containing coco_dir
+            coco_dir (str): Name of coco_dir containing image folder and annotation folder
+            img_dir (str): Name of folder containing all training and validation folders
+            set_dir (str): Name of folder containing all training images
+            batch_size (int): Mini batch sampling size for training epochs
+            use_gpu (bool): If True use GPU else run on CPU
+            num_workers (int): Number of parallel processors for data loader 
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;] = root_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;] = coco_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;img_dir&#34;] = img_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;set_dir&#34;] = set_dir;
+
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;] = batch_size;
+        self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;] = num_workers;
+
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;use_gpu&#34;] = use_gpu;
+
+
+
+    def Val_Dataset(self, root_dir, coco_dir, img_dir, set_dir):
+        &#39;&#39;&#39;
+        User function: Set training dataset parameters
+
+        Dataset Directory Structure
+
+                   root_dir
+                      |
+                      |------coco_dir 
+                      |         |
+                      |         |----img_dir
+                      |                |
+                      |                |------&lt;set_dir_val&gt; (set_dir) (Validation)
+                      |                         |
+                      |                         |---------img1.jpg
+                      |                         |---------img2.jpg
+                      |                         |---------..........(and so on)  
+                      |
+                      |
+                      |         |---annotations 
+                      |         |----|
+                      |              |--------------------instances_Val.json  (instances_&lt;set_dir_val&gt;.json)
+                      |              |--------------------classes.txt
+                      
+                      
+             - instances_Train.json -&gt; In proper COCO format
+             - classes.txt          -&gt; A list of classes in alphabetical order
+
+             
+            For ValSet
+             - root_dir = &#34;..sample_dataset&#34;;
+             - coco_dir = &#34;kangaroo&#34;;
+             - img_dir = &#34;images&#34;;
+             - set_dir = &#34;Val&#34;;
+             
+             Note: Annotation file name too coincides against the set_dir
+
+        Args:
+            root_dir (str): Path to root directory containing coco_dir
+            coco_dir (str): Name of coco_dir containing image folder and annotation folder
+            img_dir (str): Name of folder containing all training and validation folders
+            set_dir (str): Name of folder containing all validation images
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;] = True;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;root_dir&#34;] = root_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;coco_dir&#34;] = coco_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;img_dir&#34;] = img_dir;
+        self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;set_dir&#34;] = set_dir;
+
+
+
+    def Model(self, model_name=&#34;CornerNet_Saccade&#34;, use_distributed=False):
+        &#39;&#39;&#39;
+        User function: Set Model parameters
+
+            Available Models
+                CornerNet_Saccade
+                CornerNet_Squeeze
+
+        Args:
+            model_name (str): Select appropriate model
+            use_distributed (bool): If true, use distributed training
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] = model_name;
+        self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;] = use_distributed;
+
+        if(self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]):
+            print(&#34;Distributed training not enabled yet&#34;);
+
+
+    def Hyper_Params(self, lr=0.00025, total_iterations=1000, val_interval=500):
+        &#39;&#39;&#39;
+        User function: Set hyper parameters
+
+        Args:
+            lr (float): Initial learning rate for training
+            total_iterations (float): Total mini batch iterations for training
+            val_interval (int): Post specified number of training epochs, a validation epoch will be carried out
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;lr&#34;] = lr;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;] = total_iterations;
+        self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;val_interval&#34;] = val_interval;
+
+
+
+    def Setup(self):
+        &#39;&#39;&#39;
+        User function: Setup dataset, model and hyper-params 
+
+        Args:
+            None
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+        distributed = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]
+        world_size  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;]
+
+        ngpus_per_node  = torch.cuda.device_count()
+
+        current_dir = os.path.dirname(os.path.realpath(__file__));
+
+        cfg_file = os.path.join(current_dir, &#34;configs&#34;, self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] + &#34;.json&#34;)
+        with open(cfg_file, &#34;r&#34;) as f:
+            self.system_dict[&#34;local&#34;][&#34;config&#34;] = json.load(f)
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;root_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;coco_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;img_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;img_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;set_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;set_dir&#34;];
+
+        f = open(self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;] + &#34;/&#34; + self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;] + &#34;/annotations/classes.txt&#34;);
+        lines = f.readlines();
+        f.close();
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;categories&#34;] = len(lines);
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;batch_size&#34;] = self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;chunk_sizes&#34;] = [self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;]];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;max_iter&#34;] = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;];
+
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;snapshot_name&#34;] = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;]
+        self.system_dict[&#34;local&#34;][&#34;system_config&#34;] = SystemConfig().update_config(self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;])
+
+        self.system_dict[&#34;local&#34;][&#34;training_dbs&#34;] = [datasets[self.system_dict[&#34;local&#34;][&#34;system_config&#34;].dataset](self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;], 
+                                                            sys_config=self.system_dict[&#34;local&#34;][&#34;system_config&#34;]) for _ in range(self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;])]
+
+        if(self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]):
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;root_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;root_dir&#34;];
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;coco_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;coco_dir&#34;];
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;img_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;img_dir&#34;];
+            self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;set_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;set_dir&#34;];
+
+            self.system_dict[&#34;local&#34;][&#34;validation_db&#34;] = datasets[self.system_dict[&#34;local&#34;][&#34;system_config&#34;].dataset](self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;], 
+                                                                sys_config=self.system_dict[&#34;local&#34;][&#34;system_config&#34;])
+
+
+        if(not os.path.isdir(&#34;cache/&#34;)):
+            os.mkdir(&#34;cache&#34;);
+        if(not os.path.isdir(&#34;cache/nnet&#34;)):
+            os.mkdir(&#34;cache/nnet/&#34;);
+        if(not os.path.isdir(&#34;cache/nnet/&#34; + self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;])):
+            os.mkdir(&#34;cache/nnet/&#34; + self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;]);
+
+        model_file  = &#34;core.models.{}&#34;.format(self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;])
+        print(&#34;Loading Model - {}&#34;.format(model_file))
+        model_file  = importlib.import_module(model_file)
+        self.system_dict[&#34;local&#34;][&#34;model&#34;] = model_file.model(self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;categories&#34;])
+        print(&#34;Model Loaded&#34;);
+
+
+    def Train(self, display_interval=100):
+        &#39;&#39;&#39;
+        User function: Start training
+
+        Args:
+            display_interval (int): Post every specified iteration the training losses and accuracies will be printed
+
+        Returns:
+            None
+        &#39;&#39;&#39;
+                # reading arguments from command
+        start_iter  = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;start_iter&#34;]
+        distributed = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]
+        world_size  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;]
+        initialize  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;initialize&#34;]
+        gpu         = None
+        rank        = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;rank&#34;]
+
+        # reading arguments from json file
+        batch_size       = self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;]
+        learning_rate    = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;lr&#34;]
+        max_iteration    = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]
+        pretrained_model = None;
+
+        stepsize         = int(self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]*0.8)
+        snapshot         = int(self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]*0.5)
+        val_iter         = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;val_interval&#34;]
+        display          = display_interval
+        decay_rate       = self.system_dict[&#34;local&#34;][&#34;system_config&#34;].decay_rate
+
+        print(&#34;start_iter       = {}&#34;.format(start_iter));
+        print(&#34;distributed      = {}&#34;.format(distributed));
+        print(&#34;world_size       = {}&#34;.format(world_size));
+        print(&#34;initialize       = {}&#34;.format(initialize));
+        print(&#34;batch_size       = {}&#34;.format(batch_size));
+        print(&#34;learning_rate    = {}&#34;.format(learning_rate));
+        print(&#34;max_iteration    = {}&#34;.format(max_iteration));
+        print(&#34;stepsize         = {}&#34;.format(stepsize));
+        print(&#34;snapshot         = {}&#34;.format(snapshot));
+        print(&#34;val_iter         = {}&#34;.format(val_iter));
+        print(&#34;display          = {}&#34;.format(display));
+        print(&#34;decay_rate       = {}&#34;.format(decay_rate));
+
+
+
+        print(&#34;Process {}: building model...&#34;.format(rank))
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;] = NetworkFactory(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                self.system_dict[&#34;local&#34;][&#34;model&#34;], distributed=distributed, gpu=gpu)
+
+
+        # queues storing data for training
+        training_queue   = Queue(self.system_dict[&#34;local&#34;][&#34;system_config&#34;].prefetch_size)
+        validation_queue = Queue(5)
+
+        # queues storing pinned data for training
+        pinned_training_queue   = queue.Queue(self.system_dict[&#34;local&#34;][&#34;system_config&#34;].prefetch_size)
+        pinned_validation_queue = queue.Queue(5)
+
+
+        # allocating resources for parallel reading
+        training_tasks = init_parallel_jobs(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                            self.system_dict[&#34;local&#34;][&#34;training_dbs&#34;], 
+                                            training_queue, data_sampling_func, True)
+
+
+        
+        if self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]:
+            validation_tasks = init_parallel_jobs(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                                    [self.system_dict[&#34;local&#34;][&#34;validation_db&#34;]], 
+                                                    validation_queue, data_sampling_func, False)
+
+
+        training_pin_semaphore   = threading.Semaphore()
+        validation_pin_semaphore = threading.Semaphore()
+        training_pin_semaphore.acquire()
+        validation_pin_semaphore.acquire()
+
+        training_pin_args   = (training_queue, pinned_training_queue, training_pin_semaphore)
+        training_pin_thread = threading.Thread(target=pin_memory, args=training_pin_args)
+        training_pin_thread.daemon = True
+        training_pin_thread.start()
+
+        validation_pin_args   = (validation_queue, pinned_validation_queue, validation_pin_semaphore)
+        validation_pin_thread = threading.Thread(target=pin_memory, args=validation_pin_args)
+        validation_pin_thread.daemon = True
+        validation_pin_thread.start()
+        
+        if pretrained_model is not None:
+            if not os.path.exists(pretrained_model):
+                raise ValueError(&#34;pretrained model does not exist&#34;)
+            print(&#34;Process {}: loading from pretrained model&#34;.format(rank))
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].load_pretrained_params(pretrained_model)
+
+        if start_iter:
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].load_params(start_iter)
+            learning_rate /= (decay_rate ** (start_iter // stepsize))
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+            print(&#34;Process {}: training starts from iteration {} with learning_rate {}&#34;.format(rank, start_iter + 1, learning_rate))
+        else:
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+
+        if rank == 0:
+            print(&#34;training start...&#34;)
+
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].cuda()
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train_mode()   
+
+        if(self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]):
+            old_val_loss = 100000.0;
+            with stdout_to_tqdm() as save_stdout:
+                for iteration in tqdm(range(start_iter + 1, max_iteration + 1), file=save_stdout, ncols=80):
+                    training = pinned_training_queue.get(block=True)
+                    training_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train(**training)
+
+                    if display and iteration % display == 0:
+                        print(&#34;Process {}: training loss at iteration {}: {}&#34;.format(rank, iteration, training_loss.item()))
+                    del training_loss
+
+                    if val_iter and self.system_dict[&#34;local&#34;][&#34;validation_db&#34;].db_inds.size and iteration % val_iter == 0:
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].eval_mode()
+                        validation = pinned_validation_queue.get(block=True)
+                        validation_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].validate(**validation)
+                        print(&#34;Process {}: validation loss at iteration {}: {}&#34;.format(rank, iteration, validation_loss.item()))
+                        if(validation_loss &lt; old_val_loss):
+                            print(&#34;Loss Reduced from {} to {}&#34;.format(old_val_loss, validation_loss))
+                            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;best&#34;);
+                            old_val_loss = validation_loss;
+                        else:
+                            print(&#34;validation loss did not go below {}, current loss - {}&#34;.format(old_val_loss, validation_loss))
+
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train_mode()
+                        
+
+                    if iteration % stepsize == 0:
+                        learning_rate /= decay_rate
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;final&#34;);
+
+            # sending signal to kill the thread
+            training_pin_semaphore.release()
+            validation_pin_semaphore.release()
+
+            # terminating data fetching processes
+            terminate_tasks(training_tasks)
+            terminate_tasks(validation_tasks)
+
+
+        else:
+            with stdout_to_tqdm() as save_stdout:
+                for iteration in tqdm(range(start_iter + 1, max_iteration + 1), file=save_stdout, ncols=80):
+                    training = pinned_training_queue.get(block=True)
+                    training_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train(**training)
+
+                    if display and iteration % display == 0:
+                        print(&#34;Process {}: training loss at iteration {}: {}&#34;.format(rank, iteration, training_loss.item()))
+                    del training_loss
+
+
+                    if(iteration % val_iter == 0):
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;intermediate&#34;);                     
+
+                    if iteration % stepsize == 0:
+                        learning_rate /= decay_rate
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+            self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;final&#34;);
+
+            # sending signal to kill the thread
+            training_pin_semaphore.release()
+
+            # terminating data fetching processes
+            terminate_tasks(training_tasks)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="6_cornernet_lite.lib.train_detector.Detector.Hyper_Params"><code class="name flex">
+<span>def <span class="ident">Hyper_Params</span></span>(<span>self, lr=0.00025, total_iterations=1000, val_interval=500)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>User function: Set hyper parameters</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>lr</code></strong> :&ensp;<code>float</code></dt>
+<dd>Initial learning rate for training</dd>
+<dt><strong><code>total_iterations</code></strong> :&ensp;<code>float</code></dt>
+<dd>Total mini batch iterations for training</dd>
+<dt><strong><code>val_interval</code></strong> :&ensp;<code>int</code></dt>
+<dd>Post specified number of training epochs, a validation epoch will be carried out</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Hyper_Params(self, lr=0.00025, total_iterations=1000, val_interval=500):
+    &#39;&#39;&#39;
+    User function: Set hyper parameters
+
+    Args:
+        lr (float): Initial learning rate for training
+        total_iterations (float): Total mini batch iterations for training
+        val_interval (int): Post specified number of training epochs, a validation epoch will be carried out
+
+    Returns:
+        None
+    &#39;&#39;&#39;
+    self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;lr&#34;] = lr;
+    self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;] = total_iterations;
+    self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;val_interval&#34;] = val_interval;</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.Detector.Model"><code class="name flex">
+<span>def <span class="ident">Model</span></span>(<span>self, model_name='CornerNet_Saccade', use_distributed=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>User function: Set Model parameters</p>
+<pre><code>Available Models
+    CornerNet_Saccade
+    CornerNet_Squeeze
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Select appropriate model</dd>
+<dt><strong><code>use_distributed</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If true, use distributed training</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Model(self, model_name=&#34;CornerNet_Saccade&#34;, use_distributed=False):
+    &#39;&#39;&#39;
+    User function: Set Model parameters
+
+        Available Models
+            CornerNet_Saccade
+            CornerNet_Squeeze
+
+    Args:
+        model_name (str): Select appropriate model
+        use_distributed (bool): If true, use distributed training
+
+    Returns:
+        None
+    &#39;&#39;&#39;
+    self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] = model_name;
+    self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;] = use_distributed;
+
+    if(self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]):
+        print(&#34;Distributed training not enabled yet&#34;);</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.Detector.Setup"><code class="name flex">
+<span>def <span class="ident">Setup</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>User function: Setup dataset, model and hyper-params </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>None</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Setup(self):
+    &#39;&#39;&#39;
+    User function: Setup dataset, model and hyper-params 
+
+    Args:
+        None
+
+    Returns:
+        None
+    &#39;&#39;&#39;
+    distributed = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]
+    world_size  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;]
+
+    ngpus_per_node  = torch.cuda.device_count()
+
+    current_dir = os.path.dirname(os.path.realpath(__file__));
+
+    cfg_file = os.path.join(current_dir, &#34;configs&#34;, self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;] + &#34;.json&#34;)
+    with open(cfg_file, &#34;r&#34;) as f:
+        self.system_dict[&#34;local&#34;][&#34;config&#34;] = json.load(f)
+
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;root_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;];
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;coco_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;];
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;img_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;img_dir&#34;];
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;set_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;set_dir&#34;];
+
+    f = open(self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;] + &#34;/&#34; + self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;] + &#34;/annotations/classes.txt&#34;);
+    lines = f.readlines();
+    f.close();
+
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;categories&#34;] = len(lines);
+
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;batch_size&#34;] = self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;];
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;chunk_sizes&#34;] = [self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;]];
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;max_iter&#34;] = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;];
+
+    self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;][&#34;snapshot_name&#34;] = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;]
+    self.system_dict[&#34;local&#34;][&#34;system_config&#34;] = SystemConfig().update_config(self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;system&#34;])
+
+    self.system_dict[&#34;local&#34;][&#34;training_dbs&#34;] = [datasets[self.system_dict[&#34;local&#34;][&#34;system_config&#34;].dataset](self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;], 
+                                                        sys_config=self.system_dict[&#34;local&#34;][&#34;system_config&#34;]) for _ in range(self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;])]
+
+    if(self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]):
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;root_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;root_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;coco_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;coco_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;img_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;img_dir&#34;];
+        self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;set_dir&#34;] = self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;set_dir&#34;];
+
+        self.system_dict[&#34;local&#34;][&#34;validation_db&#34;] = datasets[self.system_dict[&#34;local&#34;][&#34;system_config&#34;].dataset](self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;], 
+                                                            sys_config=self.system_dict[&#34;local&#34;][&#34;system_config&#34;])
+
+
+    if(not os.path.isdir(&#34;cache/&#34;)):
+        os.mkdir(&#34;cache&#34;);
+    if(not os.path.isdir(&#34;cache/nnet&#34;)):
+        os.mkdir(&#34;cache/nnet/&#34;);
+    if(not os.path.isdir(&#34;cache/nnet/&#34; + self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;])):
+        os.mkdir(&#34;cache/nnet/&#34; + self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;]);
+
+    model_file  = &#34;core.models.{}&#34;.format(self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;cfg_file&#34;])
+    print(&#34;Loading Model - {}&#34;.format(model_file))
+    model_file  = importlib.import_module(model_file)
+    self.system_dict[&#34;local&#34;][&#34;model&#34;] = model_file.model(self.system_dict[&#34;local&#34;][&#34;config&#34;][&#34;db&#34;][&#34;categories&#34;])
+    print(&#34;Model Loaded&#34;);</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.Detector.Train"><code class="name flex">
+<span>def <span class="ident">Train</span></span>(<span>self, display_interval=100)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>User function: Start training</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>display_interval</code></strong> :&ensp;<code>int</code></dt>
+<dd>Post every specified iteration the training losses and accuracies will be printed</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Train(self, display_interval=100):
+    &#39;&#39;&#39;
+    User function: Start training
+
+    Args:
+        display_interval (int): Post every specified iteration the training losses and accuracies will be printed
+
+    Returns:
+        None
+    &#39;&#39;&#39;
+            # reading arguments from command
+    start_iter  = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;start_iter&#34;]
+    distributed = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;distributed&#34;]
+    world_size  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;world_size&#34;]
+    initialize  = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;initialize&#34;]
+    gpu         = None
+    rank        = self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;rank&#34;]
+
+    # reading arguments from json file
+    batch_size       = self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;]
+    learning_rate    = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;lr&#34;]
+    max_iteration    = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]
+    pretrained_model = None;
+
+    stepsize         = int(self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]*0.8)
+    snapshot         = int(self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;total_iterations&#34;]*0.5)
+    val_iter         = self.system_dict[&#34;training&#34;][&#34;params&#34;][&#34;val_interval&#34;]
+    display          = display_interval
+    decay_rate       = self.system_dict[&#34;local&#34;][&#34;system_config&#34;].decay_rate
+
+    print(&#34;start_iter       = {}&#34;.format(start_iter));
+    print(&#34;distributed      = {}&#34;.format(distributed));
+    print(&#34;world_size       = {}&#34;.format(world_size));
+    print(&#34;initialize       = {}&#34;.format(initialize));
+    print(&#34;batch_size       = {}&#34;.format(batch_size));
+    print(&#34;learning_rate    = {}&#34;.format(learning_rate));
+    print(&#34;max_iteration    = {}&#34;.format(max_iteration));
+    print(&#34;stepsize         = {}&#34;.format(stepsize));
+    print(&#34;snapshot         = {}&#34;.format(snapshot));
+    print(&#34;val_iter         = {}&#34;.format(val_iter));
+    print(&#34;display          = {}&#34;.format(display));
+    print(&#34;decay_rate       = {}&#34;.format(decay_rate));
+
+
+
+    print(&#34;Process {}: building model...&#34;.format(rank))
+    self.system_dict[&#34;local&#34;][&#34;nnet&#34;] = NetworkFactory(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                            self.system_dict[&#34;local&#34;][&#34;model&#34;], distributed=distributed, gpu=gpu)
+
+
+    # queues storing data for training
+    training_queue   = Queue(self.system_dict[&#34;local&#34;][&#34;system_config&#34;].prefetch_size)
+    validation_queue = Queue(5)
+
+    # queues storing pinned data for training
+    pinned_training_queue   = queue.Queue(self.system_dict[&#34;local&#34;][&#34;system_config&#34;].prefetch_size)
+    pinned_validation_queue = queue.Queue(5)
+
+
+    # allocating resources for parallel reading
+    training_tasks = init_parallel_jobs(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                        self.system_dict[&#34;local&#34;][&#34;training_dbs&#34;], 
+                                        training_queue, data_sampling_func, True)
+
+
+    
+    if self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]:
+        validation_tasks = init_parallel_jobs(self.system_dict[&#34;local&#34;][&#34;system_config&#34;], 
+                                                [self.system_dict[&#34;local&#34;][&#34;validation_db&#34;]], 
+                                                validation_queue, data_sampling_func, False)
+
+
+    training_pin_semaphore   = threading.Semaphore()
+    validation_pin_semaphore = threading.Semaphore()
+    training_pin_semaphore.acquire()
+    validation_pin_semaphore.acquire()
+
+    training_pin_args   = (training_queue, pinned_training_queue, training_pin_semaphore)
+    training_pin_thread = threading.Thread(target=pin_memory, args=training_pin_args)
+    training_pin_thread.daemon = True
+    training_pin_thread.start()
+
+    validation_pin_args   = (validation_queue, pinned_validation_queue, validation_pin_semaphore)
+    validation_pin_thread = threading.Thread(target=pin_memory, args=validation_pin_args)
+    validation_pin_thread.daemon = True
+    validation_pin_thread.start()
+    
+    if pretrained_model is not None:
+        if not os.path.exists(pretrained_model):
+            raise ValueError(&#34;pretrained model does not exist&#34;)
+        print(&#34;Process {}: loading from pretrained model&#34;.format(rank))
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].load_pretrained_params(pretrained_model)
+
+    if start_iter:
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].load_params(start_iter)
+        learning_rate /= (decay_rate ** (start_iter // stepsize))
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+        print(&#34;Process {}: training starts from iteration {} with learning_rate {}&#34;.format(rank, start_iter + 1, learning_rate))
+    else:
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+
+    if rank == 0:
+        print(&#34;training start...&#34;)
+
+    self.system_dict[&#34;local&#34;][&#34;nnet&#34;].cuda()
+    self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train_mode()   
+
+    if(self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;]):
+        old_val_loss = 100000.0;
+        with stdout_to_tqdm() as save_stdout:
+            for iteration in tqdm(range(start_iter + 1, max_iteration + 1), file=save_stdout, ncols=80):
+                training = pinned_training_queue.get(block=True)
+                training_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train(**training)
+
+                if display and iteration % display == 0:
+                    print(&#34;Process {}: training loss at iteration {}: {}&#34;.format(rank, iteration, training_loss.item()))
+                del training_loss
+
+                if val_iter and self.system_dict[&#34;local&#34;][&#34;validation_db&#34;].db_inds.size and iteration % val_iter == 0:
+                    self.system_dict[&#34;local&#34;][&#34;nnet&#34;].eval_mode()
+                    validation = pinned_validation_queue.get(block=True)
+                    validation_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].validate(**validation)
+                    print(&#34;Process {}: validation loss at iteration {}: {}&#34;.format(rank, iteration, validation_loss.item()))
+                    if(validation_loss &lt; old_val_loss):
+                        print(&#34;Loss Reduced from {} to {}&#34;.format(old_val_loss, validation_loss))
+                        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;best&#34;);
+                        old_val_loss = validation_loss;
+                    else:
+                        print(&#34;validation loss did not go below {}, current loss - {}&#34;.format(old_val_loss, validation_loss))
+
+                    self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train_mode()
+                    
+
+                if iteration % stepsize == 0:
+                    learning_rate /= decay_rate
+                    self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;final&#34;);
+
+        # sending signal to kill the thread
+        training_pin_semaphore.release()
+        validation_pin_semaphore.release()
+
+        # terminating data fetching processes
+        terminate_tasks(training_tasks)
+        terminate_tasks(validation_tasks)
+
+
+    else:
+        with stdout_to_tqdm() as save_stdout:
+            for iteration in tqdm(range(start_iter + 1, max_iteration + 1), file=save_stdout, ncols=80):
+                training = pinned_training_queue.get(block=True)
+                training_loss = self.system_dict[&#34;local&#34;][&#34;nnet&#34;].train(**training)
+
+                if display and iteration % display == 0:
+                    print(&#34;Process {}: training loss at iteration {}: {}&#34;.format(rank, iteration, training_loss.item()))
+                del training_loss
+
+
+                if(iteration % val_iter == 0):
+                    self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;intermediate&#34;);                     
+
+                if iteration % stepsize == 0:
+                    learning_rate /= decay_rate
+                    self.system_dict[&#34;local&#34;][&#34;nnet&#34;].set_lr(learning_rate)
+
+        self.system_dict[&#34;local&#34;][&#34;nnet&#34;].save_params(&#34;final&#34;);
+
+        # sending signal to kill the thread
+        training_pin_semaphore.release()
+
+        # terminating data fetching processes
+        terminate_tasks(training_tasks)</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.Detector.Train_Dataset"><code class="name flex">
+<span>def <span class="ident">Train_Dataset</span></span>(<span>self, root_dir, coco_dir, img_dir, set_dir, batch_size=4, use_gpu=True, num_workers=4)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>User function: Set training dataset parameters</p>
+<p>Dataset Directory Structure</p>
+<pre><code>       root_dir
+          |
+          |------coco_dir 
+          |         |
+          |         |----img_dir
+          |                |
+          |                |------&lt;set_dir_train&gt; (set_dir) (Train)
+          |                         |
+          |                         |---------img1.jpg
+          |                         |---------img2.jpg
+          |                         |---------..........(and so on)  
+          |
+          |
+          |         |---annotations 
+          |         |----|
+          |              |--------------------instances_Train.json  (instances_&lt;set_dir_train&gt;.json)
+          |              |--------------------classes.txt
+
+
+ - instances_Train.json -&gt; In proper COCO format
+ - classes.txt          -&gt; A list of classes in alphabetical order
+
+
+For TrainSet
+ - root_dir = "../sample_dataset";
+ - coco_dir = "kangaroo";
+ - img_dir = "images";
+ - set_dir = "Train";
+
+
+Note: Annotation file name too coincides against the set_dir
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>root_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to root directory containing coco_dir</dd>
+<dt><strong><code>coco_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of coco_dir containing image folder and annotation folder</dd>
+<dt><strong><code>img_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of folder containing all training and validation folders</dd>
+<dt><strong><code>set_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of folder containing all training images</dd>
+<dt><strong><code>batch_size</code></strong> :&ensp;<code>int</code></dt>
+<dd>Mini batch sampling size for training epochs</dd>
+<dt><strong><code>use_gpu</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True use GPU else run on CPU</dd>
+<dt><strong><code>num_workers</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of parallel processors for data loader </dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Train_Dataset(self, root_dir, coco_dir, img_dir, set_dir, batch_size=4, use_gpu=True, num_workers=4):
+    &#39;&#39;&#39;
+    User function: Set training dataset parameters
+
+    Dataset Directory Structure
+
+               root_dir
+                  |
+                  |------coco_dir 
+                  |         |
+                  |         |----img_dir
+                  |                |
+                  |                |------&lt;set_dir_train&gt; (set_dir) (Train)
+                  |                         |
+                  |                         |---------img1.jpg
+                  |                         |---------img2.jpg
+                  |                         |---------..........(and so on)  
+                  |
+                  |
+                  |         |---annotations 
+                  |         |----|
+                  |              |--------------------instances_Train.json  (instances_&lt;set_dir_train&gt;.json)
+                  |              |--------------------classes.txt
+                  
+                  
+         - instances_Train.json -&gt; In proper COCO format
+         - classes.txt          -&gt; A list of classes in alphabetical order
+         
+
+        For TrainSet
+         - root_dir = &#34;../sample_dataset&#34;;
+         - coco_dir = &#34;kangaroo&#34;;
+         - img_dir = &#34;images&#34;;
+         - set_dir = &#34;Train&#34;;
+        
+         
+        Note: Annotation file name too coincides against the set_dir
+
+    Args:
+        root_dir (str): Path to root directory containing coco_dir
+        coco_dir (str): Name of coco_dir containing image folder and annotation folder
+        img_dir (str): Name of folder containing all training and validation folders
+        set_dir (str): Name of folder containing all training images
+        batch_size (int): Mini batch sampling size for training epochs
+        use_gpu (bool): If True use GPU else run on CPU
+        num_workers (int): Number of parallel processors for data loader 
+
+    Returns:
+        None
+    &#39;&#39;&#39;
+    self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;root_dir&#34;] = root_dir;
+    self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;coco_dir&#34;] = coco_dir;
+    self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;img_dir&#34;] = img_dir;
+    self.system_dict[&#34;dataset&#34;][&#34;train&#34;][&#34;set_dir&#34;] = set_dir;
+
+    self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;batch_size&#34;] = batch_size;
+    self.system_dict[&#34;dataset&#34;][&#34;params&#34;][&#34;workers&#34;] = num_workers;
+
+    self.system_dict[&#34;model&#34;][&#34;params&#34;][&#34;use_gpu&#34;] = use_gpu;</code></pre>
+</details>
+</dd>
+<dt id="6_cornernet_lite.lib.train_detector.Detector.Val_Dataset"><code class="name flex">
+<span>def <span class="ident">Val_Dataset</span></span>(<span>self, root_dir, coco_dir, img_dir, set_dir)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>User function: Set training dataset parameters</p>
+<p>Dataset Directory Structure</p>
+<pre><code>       root_dir
+          |
+          |------coco_dir 
+          |         |
+          |         |----img_dir
+          |                |
+          |                |------&lt;set_dir_val&gt; (set_dir) (Validation)
+          |                         |
+          |                         |---------img1.jpg
+          |                         |---------img2.jpg
+          |                         |---------..........(and so on)  
+          |
+          |
+          |         |---annotations 
+          |         |----|
+          |              |--------------------instances_Val.json  (instances_&lt;set_dir_val&gt;.json)
+          |              |--------------------classes.txt
+
+
+ - instances_Train.json -&gt; In proper COCO format
+ - classes.txt          -&gt; A list of classes in alphabetical order
+
+
+For ValSet
+ - root_dir = "..sample_dataset";
+ - coco_dir = "kangaroo";
+ - img_dir = "images";
+ - set_dir = "Val";
+
+ Note: Annotation file name too coincides against the set_dir
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>root_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to root directory containing coco_dir</dd>
+<dt><strong><code>coco_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of coco_dir containing image folder and annotation folder</dd>
+<dt><strong><code>img_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of folder containing all training and validation folders</dd>
+<dt><strong><code>set_dir</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of folder containing all validation images</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Val_Dataset(self, root_dir, coco_dir, img_dir, set_dir):
+    &#39;&#39;&#39;
+    User function: Set training dataset parameters
+
+    Dataset Directory Structure
+
+               root_dir
+                  |
+                  |------coco_dir 
+                  |         |
+                  |         |----img_dir
+                  |                |
+                  |                |------&lt;set_dir_val&gt; (set_dir) (Validation)
+                  |                         |
+                  |                         |---------img1.jpg
+                  |                         |---------img2.jpg
+                  |                         |---------..........(and so on)  
+                  |
+                  |
+                  |         |---annotations 
+                  |         |----|
+                  |              |--------------------instances_Val.json  (instances_&lt;set_dir_val&gt;.json)
+                  |              |--------------------classes.txt
+                  
+                  
+         - instances_Train.json -&gt; In proper COCO format
+         - classes.txt          -&gt; A list of classes in alphabetical order
+
+         
+        For ValSet
+         - root_dir = &#34;..sample_dataset&#34;;
+         - coco_dir = &#34;kangaroo&#34;;
+         - img_dir = &#34;images&#34;;
+         - set_dir = &#34;Val&#34;;
+         
+         Note: Annotation file name too coincides against the set_dir
+
+    Args:
+        root_dir (str): Path to root directory containing coco_dir
+        coco_dir (str): Name of coco_dir containing image folder and annotation folder
+        img_dir (str): Name of folder containing all training and validation folders
+        set_dir (str): Name of folder containing all validation images
+
+    Returns:
+        None
+    &#39;&#39;&#39;
+    self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;status&#34;] = True;
+    self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;root_dir&#34;] = root_dir;
+    self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;coco_dir&#34;] = coco_dir;
+    self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;img_dir&#34;] = img_dir;
+    self.system_dict[&#34;dataset&#34;][&#34;val&#34;][&#34;set_dir&#34;] = set_dir;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="6_cornernet_lite.lib" href="index.html">6_cornernet_lite.lib</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="6_cornernet_lite.lib.train_detector.init_parallel_jobs" href="#6_cornernet_lite.lib.train_detector.init_parallel_jobs">init_parallel_jobs</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.pin_memory" href="#6_cornernet_lite.lib.train_detector.pin_memory">pin_memory</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.prefetch_data" href="#6_cornernet_lite.lib.train_detector.prefetch_data">prefetch_data</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.terminate_tasks" href="#6_cornernet_lite.lib.train_detector.terminate_tasks">terminate_tasks</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="6_cornernet_lite.lib.train_detector.Detector" href="#6_cornernet_lite.lib.train_detector.Detector">Detector</a></code></h4>
+<ul class="two-column">
+<li><code><a title="6_cornernet_lite.lib.train_detector.Detector.Hyper_Params" href="#6_cornernet_lite.lib.train_detector.Detector.Hyper_Params">Hyper_Params</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.Detector.Model" href="#6_cornernet_lite.lib.train_detector.Detector.Model">Model</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.Detector.Setup" href="#6_cornernet_lite.lib.train_detector.Detector.Setup">Setup</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.Detector.Train" href="#6_cornernet_lite.lib.train_detector.Detector.Train">Train</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.Detector.Train_Dataset" href="#6_cornernet_lite.lib.train_detector.Detector.Train_Dataset">Train_Dataset</a></code></li>
+<li><code><a title="6_cornernet_lite.lib.train_detector.Detector.Val_Dataset" href="#6_cornernet_lite.lib.train_detector.Detector.Val_Dataset">Val_Dataset</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
